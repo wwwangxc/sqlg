@@ -80,7 +80,7 @@ func (o *Options) genOffset() string {
 // Option is optional for the SQL generator
 type Option func(*Options)
 
-// WIthAnd append AND expression into the condition
+// WithAnd append AND expression into the condition
 //
 // EXP:
 //   AND ${expr}
@@ -104,7 +104,7 @@ func WithOr(column string, expr Expr) Option {
 //
 // EXP:
 //   AND (${expr1} OR ${expr2})
-func WithAndExprs(m *CompoundExpr) Option {
+func WithAndExprs(m *CompExpr) Option {
 	return func(o *Options) {
 		if m == nil || m.empty() {
 			return
@@ -123,7 +123,7 @@ func WithAndExprs(m *CompoundExpr) Option {
 //
 // EXP:
 //   OR (${expr1} AND ${expr2})
-func WithOrExprs(m *CompoundExpr) Option {
+func WithOrExprs(m *CompExpr) Option {
 	return func(o *Options) {
 		if m == nil || m.empty() {
 			return

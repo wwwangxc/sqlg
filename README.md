@@ -55,7 +55,7 @@ func main () {
         }
     
         // compound expression
-        m := sqlg.NewCompoundExpr()
+        m := sqlg.NewCompExpr()
         m.Put("name", sqlg.EQ("tom"))
         m.Put("id", sqlg.EQ(666))
         

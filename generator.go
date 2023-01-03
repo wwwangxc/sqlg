@@ -34,12 +34,12 @@ func (g *Generator) Select(columns ...string) (string, []interface{}) {
 		columns = allColumns
 	}
 
-	conditions, params := g.opts.genWhere()
+	where, params := g.opts.genWhere()
 	sql := bytes.NewBufferString("SELECT")
 	fmt.Fprintf(sql, " %s", strings.Join(columns, ", "))
 	fmt.Fprintf(sql, " FROM %s", g.table)
 	sql.WriteString(sqlOrEmpty(g.opts.genForceIndex()))
-	sql.WriteString(sqlOrEmpty(conditions))
+	sql.WriteString(sqlOrEmpty(where))
 	sql.WriteString(sqlOrEmpty(g.opts.genOrderBy()))
 	sql.WriteString(sqlOrEmpty(g.opts.genLimit()))
 	sql.WriteString(sqlOrEmpty(g.opts.genOffset()))
@@ -77,7 +77,26 @@ func (g *Generator) Update(assExpr *AssExpr) (string, []interface{}) {
 	sql := bytes.NewBufferString(fmt.Sprintf("UPDATE %s", g.table))
 	sql.WriteString(sqlOrEmpty(set))
 	sql.WriteString(sqlOrEmpty(where))
+	sql.WriteString(sqlOrEmpty(g.opts.genOrderBy()))
 	sql.WriteString(sqlOrEmpty(g.opts.genLimit()))
+	sql.WriteString(sqlOrEmpty(g.opts.genOffset()))
+
+	return sql.String(), params
+}
+
+// Delete return delete statement and params
+func (g *Generator) Delete() (string, []interface{}) {
+	if g == nil {
+		return "", nil
+	}
+
+	where, params := g.opts.genWhere()
+	sql := bytes.NewBufferString("DELETE")
+	fmt.Fprintf(sql, " FROM %s", g.table)
+	sql.WriteString(sqlOrEmpty(where))
+	sql.WriteString(sqlOrEmpty(g.opts.genOrderBy()))
+	sql.WriteString(sqlOrEmpty(g.opts.genLimit()))
+	sql.WriteString(sqlOrEmpty(g.opts.genOffset()))
 
 	return sql.String(), params
 }

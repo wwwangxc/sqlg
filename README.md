@@ -93,6 +93,27 @@ func main () {
         
         // UPDATE user SET name=?, age=? WHERE id=? LIMIT 1
         // [jerry 3 666]
-        sql, params := g.Update(assExpr)
+        _, _ = g.Update(assExpr)
+}
+```
+
+### Delete
+
+```go
+package main
+
+import (
+        "fmt"
+
+        "github.com/com/wwwangxc/sqlg"
+)
+
+func main () {
+        // create generator
+        g := sqlg.NewGenerator("user", sqlg.WithAnd("id", sqlg.EQ(666)), sqlg.WithLimit(1))
+        
+        // DELETE FROM user WHERE id=? LIMIT 1
+        // [666]
+        _, _ = g.Delete(assExpr)
 }
 ```

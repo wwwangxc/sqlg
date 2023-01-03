@@ -1,0 +1,3 @@
+golangci-lint run || exit
+
+go test -v  -covermode=count -coverprofile=coverage_unit.out -coverpkg=./... -gcflags="-N -l" ./...

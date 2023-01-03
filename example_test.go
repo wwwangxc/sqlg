@@ -58,6 +58,14 @@ func Example() {
 	fmt.Println("*Return-5")
 	fmt.Println(sql)
 	fmt.Println(params)
+	fmt.Println()
+
+	// Return-6
+	g = sqlg.NewGenerator("user", sqlg.WithAnd("id", sqlg.EQ(666)), sqlg.WithLimit(1))
+	sql, params = g.Delete()
+	fmt.Println("*Return-6")
+	fmt.Println(sql)
+	fmt.Println(params)
 
 	// Output:
 	// *Return-1
@@ -80,6 +88,10 @@ func Example() {
 	// *Return-5
 	// UPDATE user SET name=?, age=? WHERE id=? LIMIT 1
 	// [jerry 3 666]
+	//
+	// *Return-6
+	// DELETE FROM user WHERE id=? LIMIT 1
+	// [666]
 }
 
 func ExampleGenerator_Select() {
@@ -232,4 +244,18 @@ func ExampleGenerator_Update() {
 	// Output:
 	// UPDATE user SET name=?, age=? WHERE id=? LIMIT 1
 	// [jerry 3 666]
+}
+
+func ExampleGenerator_Delete() {
+	// create generator
+	g := sqlg.NewGenerator("user", sqlg.WithAnd("id", sqlg.EQ(666)), sqlg.WithLimit(1))
+
+	// generate DELETE sql statement and params
+	sql, params := g.Delete()
+	fmt.Println(sql)
+	fmt.Println(params)
+
+	// Output:
+	// DELETE FROM user WHERE id=? LIMIT 1
+	// [666]
 }

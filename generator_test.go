@@ -254,6 +254,25 @@ func TestGenerator_Update(t *testing.T) {
 	assertParams(t, gotParams, wantParams)
 }
 
+func TestGenerator_Delete(t *testing.T) {
+	opts := []Option{
+		WithAnd("col_eq", EQ("val_eq")),
+		WithAnd("col_gt", GT("val_gt")),
+		WithLimit(1),
+	}
+
+	g := NewGenerator("table_name", opts...)
+	gotSQL, gotParams := g.Update(nil)
+	assertSQL(t, gotSQL, "")
+	assertParams(t, gotParams, nil)
+	gotSQL, gotParams = g.Delete()
+
+	wantSQL := "DELETE FROM table_name WHERE col_eq=? AND col_gt>? LIMIT 1"
+	wantParams := []interface{}{"val_eq", "val_gt"}
+	assertSQL(t, gotSQL, wantSQL)
+	assertParams(t, gotParams, wantParams)
+}
+
 func assertSQL(t *testing.T, got, want string) {
 	if got != want {
 		t.Errorf("got sql dose not meet the expected\nexpected: %s\n  actual: %s", want, got)

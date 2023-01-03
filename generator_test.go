@@ -6,7 +6,7 @@ import (
 )
 
 func TestSelect(t *testing.T) {
-	m := NewCompoundExpr()
+	m := NewCompExpr()
 	m.Put("comp_col_eq", EQ("comp_val_eq"))
 	m.Put("comp_col_neq", NEQ("comp_val_neq"))
 	m.Put("comp_col_gt", GT("comp_val_gt"))
@@ -107,7 +107,7 @@ func TestSelect(t *testing.T) {
 }
 
 func TestSelectStruct(t *testing.T) {
-	m := NewCompoundExpr()
+	m := NewCompExpr()
 	m.Put("comp_col_eq", EQ("comp_val_eq"))
 	m.Put("comp_col_neq", NEQ("comp_val_neq"))
 	m.Put("comp_col_gt", GT("comp_val_gt"))

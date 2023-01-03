@@ -36,7 +36,7 @@ func Example() {
 		ID   uint64 `sqlg:"id"`
 		Name string `sqlg:"name"`
 	}
-	m := sqlg.NewCompoundExpr()
+	m := sqlg.NewCompExpr()
 	m.Put("name", sqlg.EQ("tom"))
 	m.Put("id", sqlg.EQ(666))
 	g = sqlg.NewGenerator("user", sqlg.WithAnd("deleted_at", sqlg.Null()), sqlg.WithAndExprs(m))
@@ -92,7 +92,7 @@ func ExampleGenerator_Select() {
 
 	// Return-4
 	// compound expression
-	m := sqlg.NewCompoundExpr()
+	m := sqlg.NewCompExpr()
 	m.Put("name", sqlg.EQ("tom"))
 	m.Put("id", sqlg.EQ(666))
 
@@ -130,7 +130,7 @@ func ExampleGenerator_SelectByStruct() {
 	}
 
 	// compound expression
-	m := sqlg.NewCompoundExpr()
+	m := sqlg.NewCompExpr()
 	m.Put("name", sqlg.EQ("tom"))
 	m.Put("id", sqlg.EQ(666))
 

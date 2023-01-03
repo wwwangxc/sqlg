@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestSelect(t *testing.T) {
+func TestGenerator_Select(t *testing.T) {
 	m := NewCompExpr()
 	m.Put("comp_col_eq", EQ("comp_val_eq"))
 	m.Put("comp_col_neq", NEQ("comp_val_neq"))
@@ -106,7 +106,7 @@ func TestSelect(t *testing.T) {
 	assertParams(t, gotParams, wantParams)
 }
 
-func TestSelectStruct(t *testing.T) {
+func TestGenerator_SelectByStrct(t *testing.T) {
 	m := NewCompExpr()
 	m.Put("comp_col_eq", EQ("comp_val_eq"))
 	m.Put("comp_col_neq", NEQ("comp_val_neq"))
@@ -222,6 +222,34 @@ func TestSelectStruct(t *testing.T) {
 	var s *structure
 	gotSQL, gotParams, err = g.SelectByStruct(s)
 	assertError(t, err, nil)
+	assertSQL(t, gotSQL, wantSQL)
+	assertParams(t, gotParams, wantParams)
+}
+
+func TestGenerator_Update(t *testing.T) {
+	opts := []Option{
+		WithAnd("col_eq", EQ("val_eq")),
+		WithAnd("col_gt", GT("val_gt")),
+		WithLimit(1),
+	}
+
+	g := NewGenerator("table_name", opts...)
+	gotSQL, gotParams := g.Update(nil)
+	assertSQL(t, gotSQL, "")
+	assertParams(t, gotParams, nil)
+
+	assExpr := NewAssExpr()
+	gotSQL, gotParams = g.Update(assExpr)
+	assertSQL(t, gotSQL, "")
+	assertParams(t, gotParams, nil)
+
+	assExpr.Put("col_1", "val_1")
+	assExpr.Put("col_2", "val_2")
+	assExpr.Put("col_3", "val_3")
+	gotSQL, gotParams = g.Update(assExpr)
+
+	wantSQL := "UPDATE table_name SET col_1=?, col_2=?, col_3=? WHERE col_eq=? AND col_gt>? LIMIT 1"
+	wantParams := []interface{}{"val_1", "val_2", "val_3", "val_eq", "val_gt"}
 	assertSQL(t, gotSQL, wantSQL)
 	assertParams(t, gotParams, wantParams)
 }

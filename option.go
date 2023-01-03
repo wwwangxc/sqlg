@@ -1,6 +1,7 @@
 package sqlg
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 
@@ -75,6 +76,22 @@ func (o *Options) genOffset() string {
 	}
 
 	return fmt.Sprintf("OFFSET %d", o.offset)
+}
+
+func (o *Options) genSet(assExpr *AssExpr) (string, []interface{}) {
+	if o == nil || assExpr == nil {
+		return "", nil
+	}
+
+	params := make([]interface{}, 0, assExpr.size())
+	buffer := bytes.NewBuffer(nil)
+	assExpr.each(func(column string, value interface{}) {
+		fmt.Fprintf(buffer, ", %s=?", column)
+		params = append(params, value)
+	})
+
+	sql := buffer.String()
+	return fmt.Sprintf("SET %s", sql[strings.Index(sql, " ")+1:]), params
 }
 
 // Option is optional for the SQL generator

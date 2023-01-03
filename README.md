@@ -52,6 +52,8 @@ func main () {
         type User struct {
                 ID   uint64 `sqlg:"id"`
                 Name string `sqlg:"name"`
+                Age    uint8
+                Height uint8 `sqlg:"-"`
         }
     
         // compound expression
@@ -66,5 +68,31 @@ func main () {
                 sqlg.WithAnd("deleted_at", sqlg.Null()),
                 sqlg.WithAndExprs(m))
         _, _, _ = g.SelectByStruct(User{})
+}
+```
+
+### Update
+
+```go
+package main
+
+import (
+        "fmt"
+
+        "github.com/com/wwwangxc/sqlg"
+)
+
+func main () {
+        // create generator
+        g := sqlg.NewGenerator("user", sqlg.WithAnd("id", sqlg.EQ(666)), sqlg.WithLimit(1))
+        
+        // assignment expression
+        assExpr := sqlg.NewAssExpr()
+        assExpr.Put("name", "jerry")
+        assExpr.Put("age", 3)
+        
+        // UPDATE user SET name=?, age=? WHERE id=? LIMIT 1
+        // [jerry 3 666]
+        sql, params := g.Update(assExpr)
 }
 ```

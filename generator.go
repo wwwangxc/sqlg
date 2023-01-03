@@ -64,6 +64,24 @@ func (g *Generator) SelectByStruct(target interface{}) (string, []interface{}, e
 	return sql, params, nil
 }
 
+// Update return update statement and params
+func (g *Generator) Update(assExpr *AssExpr) (string, []interface{}) {
+	if g == nil || assExpr.empty() {
+		return "", nil
+	}
+
+	set, params := g.opts.genSet(assExpr)
+	where, whereParams := g.opts.genWhere()
+	params = append(params, whereParams...)
+
+	sql := bytes.NewBufferString(fmt.Sprintf("UPDATE %s", g.table))
+	sql.WriteString(sqlOrEmpty(set))
+	sql.WriteString(sqlOrEmpty(where))
+	sql.WriteString(sqlOrEmpty(g.opts.genLimit()))
+
+	return sql.String(), params
+}
+
 func getColumns(target interface{}) ([]string, error) {
 	if target == nil {
 		return nil, errors.New("target can not be empty")
@@ -76,7 +94,12 @@ func getColumns(target interface{}) ([]string, error) {
 
 	var columns []string
 	for i := 0; i < targetType.NumField(); i++ {
-		columns = append(columns, targetType.Field(i).Tag.Get("sqlg"))
+		tag := targetType.Field(i).Tag.Get("sqlg")
+		if tag == "" || tag == "-" {
+			continue
+		}
+
+		columns = append(columns, tag)
 	}
 
 	return columns, nil

@@ -1,115 +1,11 @@
 package sqlg
 
 import (
-	"bytes"
 	"fmt"
-	"strings"
 
 	"github.com/wwwangxc/sqlg/internal"
 	"github.com/wwwangxc/sqlg/internal/expr"
 )
-
-// Options of SQL generator
-type Options struct {
-	where                *internal.Condition
-	orderBy              []string
-	limit                uint32
-	offset               uint32
-	forceIndex           string
-	onDuplicateKeyUpdate *AssExpr
-}
-
-func newOptions(opts ...Option) *Options {
-	o := defaultOptions()
-	for _, opt := range opts {
-		opt(o)
-	}
-
-	return o
-}
-
-func defaultOptions() *Options {
-	return &Options{
-		where:      &internal.Condition{},
-		orderBy:    []string{},
-		limit:      0,
-		offset:     0,
-		forceIndex: "",
-	}
-}
-
-func (o *Options) genForceIndex() string {
-	if o == nil || o.forceIndex == "" {
-		return ""
-	}
-
-	return fmt.Sprintf("FORCE INDEX (%s)", o.forceIndex)
-}
-
-func (o *Options) genWhere() (string, []interface{}) {
-	if o == nil || o.where == nil {
-		return "", nil
-	}
-
-	sql, values := o.where.ToSQL()
-	return fmt.Sprintf("WHERE %s", sql), values
-}
-
-func (o *Options) genOrderBy() string {
-	if o == nil || len(o.orderBy) == 0 {
-		return ""
-	}
-
-	return fmt.Sprintf("ORDER BY %s", strings.Join(o.orderBy, ", "))
-}
-
-func (o *Options) genLimit() string {
-	if o == nil || o.limit == 0 {
-		return ""
-	}
-
-	return fmt.Sprintf("LIMIT %d", o.limit)
-}
-
-func (o *Options) genOffset() string {
-	if o == nil || o.offset == 0 {
-		return ""
-	}
-
-	return fmt.Sprintf("OFFSET %d", o.offset)
-}
-
-func (o *Options) genSet(assExpr *AssExpr) (string, []interface{}) {
-	if o == nil || assExpr == nil {
-		return "", nil
-	}
-
-	params := make([]interface{}, 0, assExpr.size())
-	buffer := bytes.NewBuffer(nil)
-	assExpr.each(func(column string, value interface{}) {
-		fmt.Fprintf(buffer, ", %s=?", column)
-		params = append(params, value)
-	})
-
-	sql := buffer.String()
-	return fmt.Sprintf("SET %s", sql[strings.Index(sql, " ")+1:]), params
-}
-
-func (o *Options) genOnDuplicateKeyUpdate() (string, []interface{}) {
-	if o == nil || o.onDuplicateKeyUpdate.empty() {
-		return "", nil
-	}
-
-	params := make([]interface{}, 0, o.onDuplicateKeyUpdate.size())
-	buffer := bytes.NewBuffer(nil)
-	o.onDuplicateKeyUpdate.each(func(column string, value interface{}) {
-		fmt.Fprintf(buffer, ", %s=?", column)
-		params = append(params, value)
-	})
-
-	sql := buffer.String()
-	return fmt.Sprintf("ON DUPLICATE KEY UPDATE %s", sql[strings.Index(sql, " ")+1:]), params
-}
 
 // Option is optional for the SQL generator
 type Option func(*Options)
@@ -248,6 +144,16 @@ func WithOrNExists(table string, m *CompExpr) Option {
 	}
 }
 
+// WithGroupBy append group by condition
+//
+// EXP:
+//   GROUP BY ${column1}, ${column2}
+func WithGroupBy(columns ...string) Option {
+	return func(o *Options) {
+		o.groupBy = append(o.groupBy, columns...)
+	}
+}
+
 // WithOrderBy append order by condition
 //
 // EXP:
@@ -288,22 +194,32 @@ func WithOffset(offset uint32) Option {
 	}
 }
 
-// WithForceIndex set force index
+// ForceIndex set force index
 //
 // EXP:
 //   FORCE INDEX(${index})
-func WithForceIndex(index string) Option {
+func ForceIndex(index string) Option {
 	return func(o *Options) {
 		o.forceIndex = index
 	}
 }
 
-// WithOnDuplicateKeyUpdate for generate insert statment
+// OnDuplicateKeyUpdate for generate insert statment
 //
 // EXP:
 //   ON DUPLICATE KEY UPDATE ${column}=${value}, ${column}=${value}
-func WithOnDuplicateKeyUpdate(assExpr *AssExpr) Option {
+func OnDuplicateKeyUpdate(assExpr *AssExpr) Option {
 	return func(o *Options) {
 		o.onDuplicateKeyUpdate = assExpr
+	}
+}
+
+// ForUpdate set for update symbol
+//
+// EXP:
+//   FOR UPDATE
+func ForUpdate() Option {
+	return func(o *Options) {
+		o.forUpdate = true
 	}
 }

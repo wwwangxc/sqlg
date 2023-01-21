@@ -187,7 +187,7 @@ func main () {
         m.Put("age", 3)
 
         // create generator
-        g := sqlg.NewGenerator("user", sqlg.WithOnDuplicateKeyUpdate(m))
+        g := sqlg.NewGenerator("user", sqlg.OnDuplicateKeyUpdate(m))
         columns := []string{"name", "age"}
         records := [][]interface{}{{"tom", 5}}
 

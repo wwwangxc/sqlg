@@ -85,7 +85,7 @@ func Example() {
 	assExpr = sqlg.NewAssExpr()
 	assExpr.Put("name", "tom")
 	assExpr.Put("age", "5")
-	g = sqlg.NewGenerator("user", sqlg.WithOnDuplicateKeyUpdate(assExpr))
+	g = sqlg.NewGenerator("user", sqlg.OnDuplicateKeyUpdate(assExpr))
 	columns = []string{"name", "age"}
 	records = [][]interface{}{{"tom", 5}}
 	sql, params = g.Insert(columns, records...)
@@ -336,7 +336,7 @@ func ExampleGenerator_Insert() {
 	assExpr.Put("age", "5")
 
 	// create generator
-	g = sqlg.NewGenerator("user", sqlg.WithOnDuplicateKeyUpdate(assExpr))
+	g = sqlg.NewGenerator("user", sqlg.OnDuplicateKeyUpdate(assExpr))
 	columns = []string{"name", "age"}
 	records = [][]interface{}{{"tom", 5}}
 

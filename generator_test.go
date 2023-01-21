@@ -46,11 +46,13 @@ func TestGenerator_Select(t *testing.T) {
 		WithAnd("col_null", Null()),
 		WithAnd("col_not_null", NNull()),
 		WithAndExprs(m),
+		WithGroupBy("col_group_by_1", "col_group_by_2"),
 		WithOrderBy("col_order_by"),
 		WithOrderByDESC("col_order_by_desc"),
 		WithLimit(666),
 		WithOffset(999),
-		WithForceIndex("idx_some_index"),
+		ForceIndex("idx_some_index"),
+		ForUpdate(),
 	}
 
 	g := NewGenerator("table_name", ops...)
@@ -93,7 +95,8 @@ func TestGenerator_Select(t *testing.T) {
 		"OR comp_col_not_like_suffix NOT LIKE ? " +
 		"OR comp_col_null IS NULL " +
 		"OR comp_col_not_null IS NOT NULL) " +
-		"ORDER BY col_order_by ASC, col_order_by_desc DESC LIMIT 666 OFFSET 999"
+		"GROUP BY col_group_by_1, col_group_by_2 " +
+		"ORDER BY col_order_by ASC, col_order_by_desc DESC LIMIT 666 OFFSET 999 FOR UPDATE"
 	wantParams := []interface{}{"val_eq", "val_neq", "val_gt", "val_gte", "val_lt", "val_lte", "val_between1", "val_between2",
 		"val_not_between1", "val_not_between2", "val_in1", "val_in2", "val_in3", "val_not_in1", "val_not_in2", "val_not_in3",
 		"%val_like%", "%val_not_like%", "val_like_prefix%", "val_not_like_prefix%", "%val_like_suffix", "%val_not_like_suffix",
@@ -151,7 +154,7 @@ func TestGenerator_SelectByStrct(t *testing.T) {
 		WithOrderByDESC("col_order_by_desc"),
 		WithLimit(666),
 		WithOffset(999),
-		WithForceIndex("idx_some_index"),
+		ForceIndex("idx_some_index"),
 	}
 
 	wantSQL := "SELECT col_a, col_b FROM table_name FORCE INDEX (idx_some_index) " +
@@ -289,7 +292,7 @@ func TestGenerator_Insert(t *testing.T) {
 	assExpr.Put("col_1", "col_1_1")
 	assExpr.Put("col_2", "col_1_2")
 	opts := []Option{
-		WithOnDuplicateKeyUpdate(assExpr),
+		OnDuplicateKeyUpdate(assExpr),
 	}
 	g = NewGenerator("table_name", opts...)
 	gotSQL, gotParams = g.Insert(columns, records...)

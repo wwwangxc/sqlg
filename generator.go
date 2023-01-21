@@ -40,9 +40,11 @@ func (g *Generator) Select(columns ...string) (string, []interface{}) {
 	fmt.Fprintf(sql, " FROM %s", g.table)
 	sql.WriteString(sqlOrEmpty(g.opts.genForceIndex()))
 	sql.WriteString(sqlOrEmpty(where))
+	sql.WriteString(sqlOrEmpty(g.opts.genGroupBy()))
 	sql.WriteString(sqlOrEmpty(g.opts.genOrderBy()))
 	sql.WriteString(sqlOrEmpty(g.opts.genLimit()))
 	sql.WriteString(sqlOrEmpty(g.opts.genOffset()))
+	sql.WriteString(sqlOrEmpty(g.opts.genForUpdate()))
 
 	return sql.String(), params
 }

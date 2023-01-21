@@ -33,3 +33,8 @@ func (c *Condition) ToSQL() (string, []interface{}) {
 	sql := strings.TrimSpace(buffer.String())
 	return sql[strings.Index(sql, " ")+1:], values
 }
+
+// Empty will return true, when there is no expression
+func (c *Condition) Empty() bool {
+	return c == nil || len(c.exprs) == 0
+}

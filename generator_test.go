@@ -262,13 +262,56 @@ func TestGenerator_Delete(t *testing.T) {
 	}
 
 	g := NewGenerator("table_name", opts...)
-	gotSQL, gotParams := g.Update(nil)
-	assertSQL(t, gotSQL, "")
-	assertParams(t, gotParams, nil)
-	gotSQL, gotParams = g.Delete()
-
+	gotSQL, gotParams := g.Delete()
 	wantSQL := "DELETE FROM table_name WHERE col_eq=? AND col_gt>? LIMIT 1"
 	wantParams := []interface{}{"val_eq", "val_gt"}
+	assertSQL(t, gotSQL, wantSQL)
+	assertParams(t, gotParams, wantParams)
+}
+
+func TestGenerator_Insert(t *testing.T) {
+	// INSERT INTO
+	g := NewGenerator("table_name")
+	columns := []string{"col_1", "col_2", "col_3"}
+	records := [][]interface{}{
+		{"col_1_1", "col_2_1", "col_3_1"},
+		{"col_1_2", "col_2_2", "col_3_2"},
+		{"col_1_3", "col_2_3", "col_3_3"},
+	}
+	gotSQL, gotParams := g.Insert(columns, records...)
+	wantSQL := "INSERT INTO table_name (col_1, col_2, col_3) VALUES (?,?,?), (?,?,?), (?,?,?)"
+	wantParams := []interface{}{"col_1_1", "col_2_1", "col_3_1", "col_1_2", "col_2_2", "col_3_2", "col_1_3", "col_2_3", "col_3_3"}
+	assertSQL(t, gotSQL, wantSQL)
+	assertParams(t, gotParams, wantParams)
+
+	// INSERT INTO ON DUPLICATE KEY UPDATE
+	assExpr := NewAssExpr()
+	assExpr.Put("col_1", "col_1_1")
+	assExpr.Put("col_2", "col_1_2")
+	opts := []Option{
+		WithOnDuplicateKeyUpdate(assExpr),
+	}
+	g = NewGenerator("table_name", opts...)
+	gotSQL, gotParams = g.Insert(columns, records...)
+	wantSQL = "INSERT INTO table_name (col_1, col_2, col_3) VALUES (?,?,?), (?,?,?), (?,?,?) " +
+		"ON DUPLICATE KEY UPDATE col_1=?, col_2=?"
+	wantParams = []interface{}{
+		"col_1_1", "col_2_1", "col_3_1", "col_1_2", "col_2_2", "col_3_2", "col_1_3", "col_2_3", "col_3_3", "col_1_1", "col_1_2"}
+	assertSQL(t, gotSQL, wantSQL)
+	assertParams(t, gotParams, wantParams)
+
+	// INSERT INTO WHERE NOT EXIST
+	exprCom := NewCompExpr()
+	exprCom.Put("col_1", GTE("val_gte"))
+	exprCom.Put("col_2", EQ("val_eq"))
+	opts = []Option{
+		WithNExists("table_name1", exprCom),
+	}
+	g = NewGenerator("table_name", opts...)
+	gotSQL, gotParams = g.Insert(columns, records...)
+	wantSQL = "INSERT INTO table_name (col_1, col_2, col_3) SELECT ?,?,? " +
+		"FROM dual WHERE NOT EXISTS (SELECT * FROM table_name1 WHERE col_1>=? AND col_2=?)"
+	wantParams = []interface{}{"col_1_1", "col_2_1", "col_3_1", "val_gte", "val_eq"}
 	assertSQL(t, gotSQL, wantSQL)
 	assertParams(t, gotParams, wantParams)
 }

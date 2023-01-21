@@ -11,11 +11,12 @@ import (
 
 // Options of SQL generator
 type Options struct {
-	where      *internal.Condition
-	orderBy    []string
-	limit      uint32
-	offset     uint32
-	forceIndex string
+	where                *internal.Condition
+	orderBy              []string
+	limit                uint32
+	offset               uint32
+	forceIndex           string
+	onDuplicateKeyUpdate *AssExpr
 }
 
 func newOptions(opts ...Option) *Options {
@@ -94,6 +95,22 @@ func (o *Options) genSet(assExpr *AssExpr) (string, []interface{}) {
 	return fmt.Sprintf("SET %s", sql[strings.Index(sql, " ")+1:]), params
 }
 
+func (o *Options) genOnDuplicateKeyUpdate() (string, []interface{}) {
+	if o == nil || o.onDuplicateKeyUpdate.empty() {
+		return "", nil
+	}
+
+	params := make([]interface{}, 0, o.onDuplicateKeyUpdate.size())
+	buffer := bytes.NewBuffer(nil)
+	o.onDuplicateKeyUpdate.each(func(column string, value interface{}) {
+		fmt.Fprintf(buffer, ", %s=?", column)
+		params = append(params, value)
+	})
+
+	sql := buffer.String()
+	return fmt.Sprintf("ON DUPLICATE KEY UPDATE %s", sql[strings.Index(sql, " ")+1:]), params
+}
+
 // Option is optional for the SQL generator
 type Option func(*Options)
 
@@ -155,6 +172,82 @@ func WithOrExprs(m *CompExpr) Option {
 	}
 }
 
+// WithExists append exists expression
+//
+// EXP:
+//   AND EXISTS (SELECT * FROM ${table} WHERE %{expr1} AND ${expr2})
+func WithExists(table string, m *CompExpr) Option {
+	return func(o *Options) {
+		if m == nil || table == "" || m.empty() {
+			return
+		}
+
+		exprs := make([]internal.Expression, 0, m.size())
+		m.each(func(column string, expr Expr) {
+			exprs = append(exprs, expr(internal.OperatorAnd, column))
+		})
+
+		o.where.Append(expr.NewExists(internal.OperatorAnd, table, exprs...))
+	}
+}
+
+// WithNExists append not exists expression
+//
+// EXP:
+//   AND NOT EXISTS (SELECT * FROM ${table} WHERE %{expr1} AND ${expr2})
+func WithNExists(table string, m *CompExpr) Option {
+	return func(o *Options) {
+		if m == nil || table == "" || m.empty() {
+			return
+		}
+
+		exprs := make([]internal.Expression, 0, m.size())
+		m.each(func(column string, expr Expr) {
+			exprs = append(exprs, expr(internal.OperatorAnd, column))
+		})
+
+		o.where.Append(expr.NewNExists(internal.OperatorAnd, table, exprs...))
+	}
+}
+
+// WithNExists append not exists expression
+//
+// EXP:
+//   OR EXISTS (SELECT * FROM ${table} WHERE %{expr1} AND ${expr2})
+func WithOrExists(table string, m *CompExpr) Option {
+	return func(o *Options) {
+		if m == nil || table == "" || m.empty() {
+			return
+		}
+
+		exprs := make([]internal.Expression, 0, m.size())
+		m.each(func(column string, expr Expr) {
+			exprs = append(exprs, expr(internal.OperatorAnd, column))
+		})
+
+		o.where.Append(expr.NewExists(internal.OperatorOr, table, exprs...))
+	}
+}
+
+// WithOrNExists append not exists expression
+//
+// EXP:
+//   OR NOT EXISTS (SELECT * FROM ${table} WHERE %{expr1} AND ${expr2})
+func WithOrNExists(table string, m *CompExpr) Option {
+	return func(o *Options) {
+		if m == nil || table == "" || m.empty() {
+			return
+		}
+
+		exprs := make([]internal.Expression, 0, m.size())
+		m.each(func(column string, expr Expr) {
+			exprs = append(exprs, expr(internal.OperatorAnd, column))
+		})
+
+		o.where.Append(expr.NewNExists(internal.OperatorOr, table, exprs...))
+	}
+}
+
 // WithOrderBy append order by condition
 //
 // EXP:
@@ -202,5 +295,15 @@ func WithOffset(offset uint32) Option {
 func WithForceIndex(index string) Option {
 	return func(o *Options) {
 		o.forceIndex = index
+	}
+}
+
+// WithOnDuplicateKeyUpdate for generate insert statment
+//
+// EXP:
+//   ON DUPLICATE KEY UPDATE ${column}=${value}, ${column}=${value}
+func WithOnDuplicateKeyUpdate(assExpr *AssExpr) Option {
+	return func(o *Options) {
+		o.onDuplicateKeyUpdate = assExpr
 	}
 }

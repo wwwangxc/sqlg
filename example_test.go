@@ -66,6 +66,45 @@ func Example() {
 	fmt.Println("*Return-6")
 	fmt.Println(sql)
 	fmt.Println(params)
+	fmt.Println()
+
+	// Return-7
+	g = sqlg.NewGenerator("user")
+	columns := []string{"name", "age"}
+	records := [][]interface{}{
+		{"tom", 5},
+		{"jerry", 3},
+	}
+	sql, params = g.Insert(columns, records...)
+	fmt.Println("*Return-7")
+	fmt.Println(sql)
+	fmt.Println(params)
+	fmt.Println()
+
+	// Return-8
+	assExpr = sqlg.NewAssExpr()
+	assExpr.Put("name", "tom")
+	assExpr.Put("age", "5")
+	g = sqlg.NewGenerator("user", sqlg.WithOnDuplicateKeyUpdate(assExpr))
+	columns = []string{"name", "age"}
+	records = [][]interface{}{{"tom", 5}}
+	sql, params = g.Insert(columns, records...)
+	fmt.Println("*Return-8")
+	fmt.Println(sql)
+	fmt.Println(params)
+	fmt.Println()
+
+	// Return-9
+	compExpr = sqlg.NewCompExpr()
+	compExpr.Put("name", sqlg.EQ("tom"))
+	compExpr.Put("age", sqlg.GTE(5))
+	g = sqlg.NewGenerator("user", sqlg.WithNExists("user", compExpr))
+	columns = []string{"name", "age"}
+	records = [][]interface{}{{"tom", 5}}
+	sql, params = g.Insert(columns, records...)
+	fmt.Println("*Return-9")
+	fmt.Println(sql)
+	fmt.Println(params)
 
 	// Output:
 	// *Return-1
@@ -92,6 +131,18 @@ func Example() {
 	// *Return-6
 	// DELETE FROM user WHERE id=? LIMIT 1
 	// [666]
+	//
+	// *Return-7
+	// INSERT INTO user (name, age) VALUES (?,?), (?,?)
+	// [tom 5 jerry 3]
+	//
+	// *Return-8
+	// INSERT INTO user (name, age) VALUES (?,?) ON DUPLICATE KEY UPDATE name=?, age=?
+	// [tom 5 tom 5]
+	//
+	// *Return-9
+	// INSERT INTO user (name, age) SELECT ?,? FROM dual WHERE NOT EXISTS (SELECT * FROM user WHERE name=? AND age>=?)
+	// [tom 5 tom 5]
 }
 
 func ExampleGenerator_Select() {
@@ -258,4 +309,74 @@ func ExampleGenerator_Delete() {
 	// Output:
 	// DELETE FROM user WHERE id=? LIMIT 1
 	// [666]
+}
+
+func ExampleGenerator_Insert() {
+	// Return-1
+	// create generator
+	g := sqlg.NewGenerator("user")
+	columns := []string{"name", "age"}
+	records := [][]interface{}{
+		{"tom", 5},
+		{"jerry", 3},
+	}
+
+	// generate INSERT sql statment and params
+	// INSERT INTO ...
+	sql, params := g.Insert(columns, records...)
+	fmt.Println("*Return-1")
+	fmt.Println(sql)
+	fmt.Println(params)
+	fmt.Println()
+
+	// Return-2
+	// create assignment expression
+	assExpr := sqlg.NewAssExpr()
+	assExpr.Put("name", "tom")
+	assExpr.Put("age", "5")
+
+	// create generator
+	g = sqlg.NewGenerator("user", sqlg.WithOnDuplicateKeyUpdate(assExpr))
+	columns = []string{"name", "age"}
+	records = [][]interface{}{{"tom", 5}}
+
+	// generate INSERT sql statment and params
+	// INSERT INTO ... ON DUPLICATE KEY UPDATE ...
+	sql, params = g.Insert(columns, records...)
+	fmt.Println("*Return-2")
+	fmt.Println(sql)
+	fmt.Println(params)
+	fmt.Println()
+
+	// Return-3
+	// create compound expression
+	compExpr := sqlg.NewCompExpr()
+	compExpr.Put("name", sqlg.EQ("tom"))
+	compExpr.Put("age", sqlg.GTE(5))
+
+	// create generator
+	g = sqlg.NewGenerator("user", sqlg.WithNExists("user", compExpr))
+	columns = []string{"name", "age"}
+	records = [][]interface{}{{"tom", 5}}
+
+	// generate INSERT sql statment and params
+	// INSERT INTO ... WHERE NOT EXIST (...)
+	sql, params = g.Insert(columns, records...)
+	fmt.Println("*Return-3")
+	fmt.Println(sql)
+	fmt.Println(params)
+
+	// Output:
+	// *Return-1
+	// INSERT INTO user (name, age) VALUES (?,?), (?,?)
+	// [tom 5 jerry 3]
+	//
+	// *Return-2
+	// INSERT INTO user (name, age) VALUES (?,?) ON DUPLICATE KEY UPDATE name=?, age=?
+	// [tom 5 tom 5]
+	//
+	// *Return-3
+	// INSERT INTO user (name, age) SELECT ?,? FROM dual WHERE NOT EXISTS (SELECT * FROM user WHERE name=? AND age>=?)
+	// [tom 5 tom 5]
+
 }

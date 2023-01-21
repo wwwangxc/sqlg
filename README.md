@@ -117,3 +117,82 @@ func main () {
         _, _ = g.Delete(assExpr)
 }
 ```
+
+### Insert
+
+```go
+package main
+
+import (
+        "fmt"
+
+        "github.com/com/wwwangxc/sqlg"
+)
+
+func main () {
+        // create generator
+        g := sqlg.NewGenerator("user")
+        columns := []string{"name", "age"}
+        records := [][]interface{}{{"tom", 5}, {"jerry", 3}}
+
+        // INSERT INTO user (name, age) VALUES (?,?), (?,?)
+        // [tom 5 jerry 3]
+        _, _ = g.Insert(columns, records)
+}
+```
+
+#### Insert Not Exist
+
+```go
+package main
+
+import (
+        "fmt"
+
+        "github.com/com/wwwangxc/sqlg"
+)
+
+func main () {
+        // compound expression
+        m := sqlg.NewCompExpr()
+        m.Put("name", sqlg.EQ("jerry"))
+        m.Put("age", sqlg.EQ(3))
+
+        // create generator
+        g := sqlg.NewGenerator("user", sqlg.WithNExists("user", m))
+        columns := []string{"name", "age"}
+        records := [][]interface{}{{"tom", 5}}
+
+        // INSERT INTO user (name, age) SELECT ?,? FROM dual WHERE NOT EXISTS (SELECT * FROM user WHERE name=? AND age=?)
+        // [tom 5 jerry 3]
+        _, _ = g.Insert(columns, records)
+}
+```
+
+#### Insert On Duplicate Key Update
+
+```go
+package main
+
+import (
+        "fmt"
+
+        "github.com/com/wwwangxc/sqlg"
+)
+
+func main () {
+        // assignment expression
+        m := sqlg.NewAssExpr()
+        m.Put("name", "jerry")
+        m.Put("age", 3)
+
+        // create generator
+        g := sqlg.NewGenerator("user", sqlg.WithOnDuplicateKeyUpdate(m))
+        columns := []string{"name", "age"}
+        records := [][]interface{}{{"tom", 5}}
+
+        // INSERT INTO user (name, age) VALUES (?,?) ON DUPLICATE KEY UPDATE name=?, age=?
+        // [tom 5 jerry 3]
+        _, _ = g.Insert(columns, records)
+}
+```

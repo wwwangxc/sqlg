@@ -6,6 +6,15 @@ import (
 )
 
 func TestGenerator_Select(t *testing.T) {
+	g := NewGenerator("table_name")
+	gotSQL, gotParams := g.Select("col1", "col2", "col3")
+
+	wantSQL := "SELECT col1, col2, col3 FROM table_name"
+	wantParams := []interface{}{}
+
+	assertSQL(t, gotSQL, wantSQL)
+	assertParams(t, gotParams, wantParams)
+
 	m := NewCompExpr()
 	m.Put("comp_col_eq", EQ("comp_val_eq"))
 	m.Put("comp_col_neq", NEQ("comp_val_neq"))
@@ -55,10 +64,10 @@ func TestGenerator_Select(t *testing.T) {
 		ForUpdate(),
 	}
 
-	g := NewGenerator("table_name", ops...)
-	gotSQL, gotParams := g.Select("col1", "col2", "col3")
+	g = NewGenerator("table_name", ops...)
+	gotSQL, gotParams = g.Select("col1", "col2", "col3")
 
-	wantSQL := "SELECT col1, col2, col3 FROM table_name FORCE INDEX (idx_some_index) " +
+	wantSQL = "SELECT col1, col2, col3 FROM table_name FORCE INDEX (idx_some_index) " +
 		"WHERE col_eq=? " +
 		"AND col_neq!=? " +
 		"AND col_gt>? " +
@@ -97,7 +106,7 @@ func TestGenerator_Select(t *testing.T) {
 		"OR comp_col_not_null IS NOT NULL) " +
 		"GROUP BY col_group_by_1, col_group_by_2 " +
 		"ORDER BY col_order_by ASC, col_order_by_desc DESC LIMIT 666 OFFSET 999 FOR UPDATE"
-	wantParams := []interface{}{"val_eq", "val_neq", "val_gt", "val_gte", "val_lt", "val_lte", "val_between1", "val_between2",
+	wantParams = []interface{}{"val_eq", "val_neq", "val_gt", "val_gte", "val_lt", "val_lte", "val_between1", "val_between2",
 		"val_not_between1", "val_not_between2", "val_in1", "val_in2", "val_in3", "val_not_in1", "val_not_in2", "val_not_in3",
 		"%val_like%", "%val_not_like%", "val_like_prefix%", "val_not_like_prefix%", "%val_like_suffix", "%val_not_like_suffix",
 		"comp_val_eq", "comp_val_neq", "comp_val_gt", "comp_val_gte", "comp_val_lt", "comp_val_lte", "comp_val_between1",

@@ -48,7 +48,7 @@ func (o *Options) genForceIndex() string {
 }
 
 func (o *Options) genWhere() (string, []interface{}) {
-	if o == nil || o.where == nil {
+	if o == nil || o.where.Empty() {
 		return "", nil
 	}
 

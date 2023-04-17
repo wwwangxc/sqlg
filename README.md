@@ -38,7 +38,7 @@ func main () {
         // [666]
         g = sqlg.NewGenerator("user",
                 sqlg.WithAnd("id", sqlg.EQ(666)),
-                sqlg.WithAnd("deleted_at", sqlg.Null()))
+                sqlg.WithAnd("deleted_at", sqlg.NNull()))
         _, _ = g.Select()
     
         // SELECT id, name FROM user WHERE id>=? OR name=? ORDER BY id DESC LIMIT 10

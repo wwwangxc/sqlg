@@ -21,8 +21,8 @@ func SafeName(column string) string {
 	case column == "":
 		return ""
 	case column == "*",
-		strings.Index(column, "(") != -1,
-		strings.Index(column, " ") != -1:
+		strings.Contains(column, "("),
+		strings.Contains(column, " "):
 		return column
 	default:
 	}

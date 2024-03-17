@@ -50,5 +50,6 @@ func (b *Between) ToSQL() (string, []interface{}) {
 		symbol = "NOT "
 	}
 
-	return fmt.Sprintf("%s %s %sBETWEEN ? AND ?", b.op, b.column, symbol), []interface{}{b.value1, b.value2}
+	return fmt.Sprintf("%s %s %sBETWEEN ? AND ?", b.op, internal.SafeName(b.column), symbol),
+		[]interface{}{b.value1, b.value2}
 }

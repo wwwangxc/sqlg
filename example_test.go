@@ -33,10 +33,10 @@ func Example() {
 
 	// Return-4
 	type User struct {
-		ID     uint64 `sqlg:"id"`
-		Name   string `sqlg:"name"`
+		ID     uint64 `db:"id"`
+		Name   string `db:"name"`
 		Age    uint8
-		Height uint8 `sqlg:"-"`
+		Height uint8 `db:"-"`
 	}
 	compExpr := sqlg.NewCompExpr()
 	compExpr.Put("name", sqlg.EQ("tom"))
@@ -108,40 +108,40 @@ func Example() {
 
 	// Output:
 	// *Return-1
-	// SELECT * FROM user WHERE id=? AND deleted_at IS NULL
+	// SELECT * FROM `user` WHERE `id`=? AND `deleted_at` IS NULL
 	// [666]
 	//
 	// *Return-2
-	// SELECT * FROM user WHERE id!=? AND deleted_at IS NOT NULL
+	// SELECT * FROM `user` WHERE `id`!=? AND `deleted_at` IS NOT NULL
 	// [666]
 	//
 	// *Return-3
-	// SELECT id, name FROM user WHERE id>=? OR name=? ORDER BY id DESC LIMIT 10
+	// SELECT `id`, `name` FROM `user` WHERE `id`>=? OR `name`=? ORDER BY `id` DESC LIMIT 10
 	// [666 tom]
 	//
 	// *Return-4
-	// SELECT id, name FROM user WHERE deleted_at IS NULL AND (name=? OR id=?)
+	// SELECT `id`, `name` FROM `user` WHERE `deleted_at` IS NULL AND (`name`=? OR `id`=?)
 	// [tom 666]
 	// <nil>
 	//
 	// *Return-5
-	// UPDATE user SET name=?, age=? WHERE id=? LIMIT 1
+	// UPDATE `user` SET `name`=?, `age`=? WHERE `id`=? LIMIT 1
 	// [jerry 3 666]
 	//
 	// *Return-6
-	// DELETE FROM user WHERE id=? LIMIT 1
+	// DELETE FROM `user` WHERE `id`=? LIMIT 1
 	// [666]
 	//
 	// *Return-7
-	// INSERT INTO user (name, age) VALUES (?,?), (?,?)
+	// INSERT INTO `user` (`name`, `age`) VALUES (?,?), (?,?)
 	// [tom 5 jerry 3]
 	//
 	// *Return-8
-	// INSERT INTO user (name, age) VALUES (?,?) ON DUPLICATE KEY UPDATE name=?, age=?
+	// INSERT INTO `user` (`name`, `age`) VALUES (?,?) ON DUPLICATE KEY UPDATE `name`=?, `age`=?
 	// [tom 5 tom 5]
 	//
 	// *Return-9
-	// INSERT INTO user (name, age) SELECT ?,? FROM dual WHERE NOT EXISTS (SELECT * FROM user WHERE name=? AND age>=?)
+	// INSERT INTO `user` (`name`, `age`) SELECT ?,? FROM dual WHERE NOT EXISTS (SELECT * FROM `user` WHERE `name`=? AND `age`>=?)
 	// [tom 5 tom 5]
 }
 
@@ -187,28 +187,28 @@ func ExampleGenerator_Select() {
 
 	// Output:
 	// *Return-1
-	// SELECT * FROM user WHERE id=? AND deleted_at IS NULL
+	// SELECT * FROM `user` WHERE `id`=? AND `deleted_at` IS NULL
 	// [666]
 	//
 	// *Return-2
-	// SELECT * FROM user WHERE id!=? AND deleted_at IS NOT NULL
+	// SELECT * FROM `user` WHERE `id`!=? AND `deleted_at` IS NOT NULL
 	// [666]
 	//
 	// *Return-3
-	// SELECT id, name FROM user WHERE id>=? OR name=? ORDER BY id DESC LIMIT 10
+	// SELECT `id`, `name` FROM `user` WHERE `id`>=? OR `name`=? ORDER BY `id` DESC LIMIT 10
 	// [666 tom]
 	//
 	// *Return-4
-	// SELECT id, name FROM user WHERE deleted_at IS NULL AND (name=? OR id=?)
+	// SELECT `id`, `name` FROM `user` WHERE `deleted_at` IS NULL AND (`name`=? OR `id`=?)
 	// [tom 666]
 }
 
 func ExampleGenerator_SelectByStruct() {
 	type User struct {
-		ID     uint64 `sqlg:"id"`
-		Name   string `sqlg:"name"`
+		ID     uint64 `db:"id"`
+		Name   string `db:"name"`
 		Age    uint8
-		Height uint8 `sqlg:"-"`
+		Height uint8 `db:"-"`
 	}
 
 	// compound expression
@@ -263,17 +263,17 @@ func ExampleGenerator_SelectByStruct() {
 	// target can not be empty
 	//
 	// *Return-2
-	// SELECT id, name FROM user WHERE deleted_at IS NULL AND (name=? OR id=?)
+	// SELECT `id`, `name` FROM `user` WHERE `deleted_at` IS NULL AND (`name`=? OR `id`=?)
 	// [tom 666]
 	// <nil>
 	//
 	// *Return-3
-	// SELECT id, name FROM user WHERE deleted_at IS NULL AND (name=? OR id=?)
+	// SELECT `id`, `name` FROM `user` WHERE `deleted_at` IS NULL AND (`name`=? OR `id`=?)
 	// [tom 666]
 	// <nil>
 	//
 	// *Return-4
-	// SELECT id, name FROM user WHERE deleted_at IS NULL AND (name=? OR id=?)
+	// SELECT `id`, `name` FROM `user` WHERE `deleted_at` IS NULL AND (`name`=? OR `id`=?)
 	// [tom 666]
 	// <nil>
 }
@@ -293,7 +293,7 @@ func ExampleGenerator_Update() {
 	fmt.Println(params)
 
 	// Output:
-	// UPDATE user SET name=?, age=? WHERE id=? LIMIT 1
+	// UPDATE `user` SET `name`=?, `age`=? WHERE `id`=? LIMIT 1
 	// [jerry 3 666]
 }
 
@@ -307,7 +307,7 @@ func ExampleGenerator_Delete() {
 	fmt.Println(params)
 
 	// Output:
-	// DELETE FROM user WHERE id=? LIMIT 1
+	// DELETE FROM `user` WHERE `id`=? LIMIT 1
 	// [666]
 }
 
@@ -368,15 +368,15 @@ func ExampleGenerator_Insert() {
 
 	// Output:
 	// *Return-1
-	// INSERT INTO user (name, age) VALUES (?,?), (?,?)
+	// INSERT INTO `user` (`name`, `age`) VALUES (?,?), (?,?)
 	// [tom 5 jerry 3]
 	//
 	// *Return-2
-	// INSERT INTO user (name, age) VALUES (?,?) ON DUPLICATE KEY UPDATE name=?, age=?
+	// INSERT INTO `user` (`name`, `age`) VALUES (?,?) ON DUPLICATE KEY UPDATE `name`=?, `age`=?
 	// [tom 5 tom 5]
 	//
 	// *Return-3
-	// INSERT INTO user (name, age) SELECT ?,? FROM dual WHERE NOT EXISTS (SELECT * FROM user WHERE name=? AND age>=?)
+	// INSERT INTO `user` (`name`, `age`) SELECT ?,? FROM dual WHERE NOT EXISTS (SELECT * FROM `user` WHERE `name`=? AND `age`>=?)
 	// [tom 5 tom 5]
 
 }

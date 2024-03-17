@@ -30,5 +30,5 @@ func (n *NEQ) ToSQL() (string, []interface{}) {
 		return "", nil
 	}
 
-	return fmt.Sprintf("%s %s!=?", n.op, n.column), []interface{}{n.value}
+	return fmt.Sprintf("%s %s!=?", n.op, internal.SafeName(n.column)), []interface{}{n.value}
 }

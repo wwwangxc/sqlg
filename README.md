@@ -27,21 +27,21 @@ import (
 )
 
 func main () {
-        // SELECT * FROM user WHERE id=? AND deleted_at IS NULL
+        // SELECT * FROM `user` WHERE `id`=? AND `deleted_at` IS NULL
         // [666]
         g := sqlg.NewGenerator("user",
                 sqlg.WithAnd("id", sqlg.EQ(666)),
                 sqlg.WithAnd("deleted_at", sqlg.Null()))
         _, _ = g.Select()
     
-        // SELECT * FROM user WHERE id!=? AND deleted_at IS NOT NULL
+        // SELECT * FROM `user` WHERE `id`!=? AND `deleted_at` IS NOT NULL
         // [666]
         g = sqlg.NewGenerator("user",
                 sqlg.WithAnd("id", sqlg.EQ(666)),
                 sqlg.WithAnd("deleted_at", sqlg.NNull()))
         _, _ = g.Select()
     
-        // SELECT id, name FROM user WHERE id>=? OR name=? ORDER BY id DESC LIMIT 10
+        // SELECT `id`, `name` FROM `user` WHERE `id`>=? OR `name`=? ORDER BY `id` DESC LIMIT 10
         // [666 tom]
         g = sqlg.NewGenerator("user",
                 sqlg.WithAnd("id", sqlg.GTE(666)),
@@ -50,10 +50,10 @@ func main () {
         _, _ = g.Select("id", "name")
     
         type User struct {
-                ID   uint64 `sqlg:"id"`
-                Name string `sqlg:"name"`
+                ID   uint64 `db:"id"`
+                Name string `db:"name"`
                 Age    uint8
-                Height uint8 `sqlg:"-"`
+                Height uint8 `db:"-"`
         }
     
         // compound expression
@@ -61,7 +61,7 @@ func main () {
         m.Put("name", sqlg.EQ("tom"))
         m.Put("id", sqlg.EQ(666))
         
-        // SELECT id, name FROM user WHERE deleted_at IS NULL AND (name=? OR id=?)
+        // SELECT `id`, `name` FROM `user` WHERE `deleted_at` IS NULL AND (`name`=? OR `id`=?)
         // [tom 666]
         // <nil>
         g = sqlg.NewGenerator("user",
@@ -91,7 +91,7 @@ func main () {
         assExpr.Put("name", "jerry")
         assExpr.Put("age", 3)
         
-        // UPDATE user SET name=?, age=? WHERE id=? LIMIT 1
+        // UPDATE `user` SET `name`=?, `age`=? WHERE `id`=? LIMIT 1
         // [jerry 3 666]
         _, _ = g.Update(assExpr)
 }
@@ -112,7 +112,7 @@ func main () {
         // create generator
         g := sqlg.NewGenerator("user", sqlg.WithAnd("id", sqlg.EQ(666)), sqlg.WithLimit(1))
         
-        // DELETE FROM user WHERE id=? LIMIT 1
+        // DELETE FROM `user` WHERE `id`=? LIMIT 1
         // [666]
         _, _ = g.Delete(assExpr)
 }
@@ -135,7 +135,7 @@ func main () {
         columns := []string{"name", "age"}
         records := [][]interface{}{{"tom", 5}, {"jerry", 3}}
 
-        // INSERT INTO user (name, age) VALUES (?,?), (?,?)
+        // INSERT INTO `user` (`name`, `age`) VALUES (?,?), (?,?)
         // [tom 5 jerry 3]
         _, _ = g.Insert(columns, records)
 }
@@ -163,7 +163,7 @@ func main () {
         columns := []string{"name", "age"}
         records := [][]interface{}{{"tom", 5}}
 
-        // INSERT INTO user (name, age) SELECT ?,? FROM dual WHERE NOT EXISTS (SELECT * FROM user WHERE name=? AND age=?)
+        // INSERT INTO `user` (`name`, `age`) SELECT ?,? FROM dual WHERE NOT EXISTS (SELECT * FROM `user` WHERE `name`=? AND `age`=?)
         // [tom 5 jerry 3]
         _, _ = g.Insert(columns, records)
 }
@@ -191,7 +191,7 @@ func main () {
         columns := []string{"name", "age"}
         records := [][]interface{}{{"tom", 5}}
 
-        // INSERT INTO user (name, age) VALUES (?,?) ON DUPLICATE KEY UPDATE name=?, age=?
+        // INSERT INTO user (`name`, `age`) VALUES (?,?) ON DUPLICATE KEY UPDATE `name`=?, `age`=?
         // [tom 5 jerry 3]
         _, _ = g.Insert(columns, records)
 }

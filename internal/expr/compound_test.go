@@ -33,7 +33,7 @@ func TestCompound_ToSQL(t *testing.T) {
 				op:    internal.OperatorAnd,
 				exprs: []internal.Expression{NewEQ(internal.OperatorOr, "col", "val")},
 			},
-			want:  "AND col=?",
+			want:  "AND `col`=?",
 			want1: []interface{}{"val"},
 		},
 		{
@@ -54,8 +54,8 @@ func TestCompound_ToSQL(t *testing.T) {
 					NewLike(internal.OperatorOr, "col11", "%%%s", "like_suffix"),
 				},
 			},
-			want: "AND (col1=? OR col2!=? OR col3>? OR col4>=? OR col5<? OR col6<=? OR col7 BETWEEN ? AND ? OR " +
-				"col8 IN (?,?,?) OR col9 LIKE ? OR col10 LIKE ? OR col11 LIKE ?)",
+			want: "AND (`col1`=? OR `col2`!=? OR `col3`>? OR `col4`>=? OR `col5`<? OR `col6`<=? OR `col7` BETWEEN ? AND ? OR " +
+				"`col8` IN (?,?,?) OR `col9` LIKE ? OR `col10` LIKE ? OR `col11` LIKE ?)",
 			want1: []interface{}{"eq", "neq", 1, 2, 3, 4, 111, 222, "in1", "in2", "in3", "%like%", "like_prefix%", "%like_suffix"},
 		},
 		{
@@ -76,8 +76,8 @@ func TestCompound_ToSQL(t *testing.T) {
 					NewLike(internal.OperatorAnd, "col11", "%%%s", "like_suffix"),
 				},
 			},
-			want: "OR (col1=? AND col2!=? AND col3>? AND col4>=? AND col5<? AND col6<=? AND col7 BETWEEN ? AND ? AND " +
-				"col8 IN (?,?,?) AND col9 LIKE ? AND col10 LIKE ? AND col11 LIKE ?)",
+			want: "OR (`col1`=? AND `col2`!=? AND `col3`>? AND `col4`>=? AND `col5`<? AND `col6`<=? AND `col7` BETWEEN ? AND ? AND " +
+				"`col8` IN (?,?,?) AND `col9` LIKE ? AND `col10` LIKE ? AND `col11` LIKE ?)",
 			want1: []interface{}{"eq", "neq", 1, 2, 3, 4, 111, 222, "in1", "in2", "in3", "%like%", "like_prefix%", "%like_suffix"},
 		},
 	}

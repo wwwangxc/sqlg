@@ -30,7 +30,7 @@ func TestLike_ToSQL(t *testing.T) {
 				value:  "val",
 				isNot:  false,
 			},
-			want:  "AND col LIKE ?",
+			want:  "AND `col` LIKE ?",
 			want1: []interface{}{"%val%"},
 		},
 		{
@@ -42,7 +42,7 @@ func TestLike_ToSQL(t *testing.T) {
 				value:  "val",
 				isNot:  false,
 			},
-			want:  "OR col LIKE ?",
+			want:  "OR `col` LIKE ?",
 			want1: []interface{}{"%val%"},
 		},
 		{
@@ -54,7 +54,7 @@ func TestLike_ToSQL(t *testing.T) {
 				value:  "val",
 				isNot:  false,
 			},
-			want:  "AND col LIKE ?",
+			want:  "AND `col` LIKE ?",
 			want1: []interface{}{"val%"},
 		},
 		{
@@ -66,7 +66,7 @@ func TestLike_ToSQL(t *testing.T) {
 				value:  "val",
 				isNot:  false,
 			},
-			want:  "OR col LIKE ?",
+			want:  "OR `col` LIKE ?",
 			want1: []interface{}{"val%"},
 		},
 		{
@@ -78,7 +78,7 @@ func TestLike_ToSQL(t *testing.T) {
 				value:  "val",
 				isNot:  false,
 			},
-			want:  "AND col LIKE ?",
+			want:  "AND `col` LIKE ?",
 			want1: []interface{}{"%val"},
 		},
 		{
@@ -90,7 +90,7 @@ func TestLike_ToSQL(t *testing.T) {
 				value:  "val",
 				isNot:  false,
 			},
-			want:  "OR col LIKE ?",
+			want:  "OR `col` LIKE ?",
 			want1: []interface{}{"%val"},
 		},
 		{
@@ -102,7 +102,7 @@ func TestLike_ToSQL(t *testing.T) {
 				value:  "val",
 				isNot:  true,
 			},
-			want:  "AND col NOT LIKE ?",
+			want:  "AND `col` NOT LIKE ?",
 			want1: []interface{}{"%val%"},
 		},
 		{
@@ -114,7 +114,7 @@ func TestLike_ToSQL(t *testing.T) {
 				value:  "val",
 				isNot:  true,
 			},
-			want:  "OR col NOT LIKE ?",
+			want:  "OR `col` NOT LIKE ?",
 			want1: []interface{}{"%val%"},
 		},
 		{
@@ -126,7 +126,7 @@ func TestLike_ToSQL(t *testing.T) {
 				value:  "val",
 				isNot:  true,
 			},
-			want:  "AND col NOT LIKE ?",
+			want:  "AND `col` NOT LIKE ?",
 			want1: []interface{}{"val%"},
 		},
 		{
@@ -138,7 +138,7 @@ func TestLike_ToSQL(t *testing.T) {
 				value:  "val",
 				isNot:  true,
 			},
-			want:  "OR col NOT LIKE ?",
+			want:  "OR `col` NOT LIKE ?",
 			want1: []interface{}{"val%"},
 		},
 		{
@@ -150,7 +150,7 @@ func TestLike_ToSQL(t *testing.T) {
 				value:  "val",
 				isNot:  true,
 			},
-			want:  "AND col NOT LIKE ?",
+			want:  "AND `col` NOT LIKE ?",
 			want1: []interface{}{"%val"},
 		},
 		{
@@ -162,7 +162,7 @@ func TestLike_ToSQL(t *testing.T) {
 				value:  "val",
 				isNot:  true,
 			},
-			want:  "OR col NOT LIKE ?",
+			want:  "OR `col` NOT LIKE ?",
 			want1: []interface{}{"%val"},
 		},
 	}

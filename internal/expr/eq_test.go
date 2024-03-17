@@ -26,7 +26,7 @@ func TestEQ_ToSQL(t *testing.T) {
 				column: "col",
 				value:  "val",
 			},
-			want:  "AND col=?",
+			want:  "AND `col`=?",
 			want1: []interface{}{"val"},
 		},
 		{
@@ -36,7 +36,7 @@ func TestEQ_ToSQL(t *testing.T) {
 				column: "col",
 				value:  "val",
 			},
-			want:  "OR col=?",
+			want:  "OR `col`=?",
 			want1: []interface{}{"val"},
 		},
 	}

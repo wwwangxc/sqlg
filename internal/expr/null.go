@@ -44,5 +44,5 @@ func (n *Null) ToSQL() (string, []interface{}) {
 		symbol = "NOT "
 	}
 
-	return fmt.Sprintf("%s %s IS %sNULL", n.op, n.column, symbol), nil
+	return fmt.Sprintf("%s %s IS %sNULL", n.op, internal.SafeName(n.column), symbol), nil
 }

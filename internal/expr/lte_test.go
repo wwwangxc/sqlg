@@ -26,7 +26,7 @@ func TestLTE_ToSQL(t *testing.T) {
 				column: "col",
 				value:  666,
 			},
-			want:  "AND col<=?",
+			want:  "AND `col`<=?",
 			want1: []interface{}{666},
 		},
 		{
@@ -36,7 +36,7 @@ func TestLTE_ToSQL(t *testing.T) {
 				column: "col",
 				value:  666,
 			},
-			want:  "OR col<=?",
+			want:  "OR `col`<=?",
 			want1: []interface{}{666},
 		},
 	}

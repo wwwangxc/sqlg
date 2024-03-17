@@ -53,5 +53,5 @@ func (i *In) ToSQL() (string, []interface{}) {
 		symbol = "NOT "
 	}
 
-	return fmt.Sprintf("%s %s %sIN (%s)", i.op, i.column, symbol, placeholder), i.values
+	return fmt.Sprintf("%s %s %sIN (%s)", i.op, internal.SafeName(i.column), symbol, placeholder), i.values
 }

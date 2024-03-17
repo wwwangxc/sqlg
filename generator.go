@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+
+	"github.com/wwwangxc/sqlg/internal"
 )
 
 var allColumns = []string{"*"}
@@ -36,8 +38,8 @@ func (g *Generator) Select(columns ...string) (string, []interface{}) {
 
 	where, params := g.opts.genWhere()
 	sql := bytes.NewBufferString("SELECT")
-	fmt.Fprintf(sql, " %s", strings.Join(columns, ", "))
-	fmt.Fprintf(sql, " FROM %s", g.table)
+	fmt.Fprintf(sql, " %s", strings.Join(internal.SafeNames(columns), ", "))
+	fmt.Fprintf(sql, " FROM %s", internal.SafeName(g.table))
 	sql.WriteString(sqlOrEmpty(g.opts.genForceIndex()))
 	sql.WriteString(sqlOrEmpty(where))
 	sql.WriteString(sqlOrEmpty(g.opts.genGroupBy()))
@@ -51,7 +53,7 @@ func (g *Generator) Select(columns ...string) (string, []interface{}) {
 
 // SelectByStruct return select statement and params
 //
-// The column of the query is obtained from the tag `sqlg` of the target structure
+// The column of the query is obtained from the tag `db` of the target structure
 func (g *Generator) SelectByStruct(target interface{}) (string, []interface{}, error) {
 	if g == nil {
 		return "", nil, nil
@@ -76,7 +78,7 @@ func (g *Generator) Update(assExpr *AssExpr) (string, []interface{}) {
 	where, whereParams := g.opts.genWhere()
 	params = append(params, whereParams...)
 
-	sql := bytes.NewBufferString(fmt.Sprintf("UPDATE %s", g.table))
+	sql := bytes.NewBufferString(fmt.Sprintf("UPDATE %s", internal.SafeName(g.table)))
 	sql.WriteString(sqlOrEmpty(set))
 	sql.WriteString(sqlOrEmpty(where))
 	sql.WriteString(sqlOrEmpty(g.opts.genOrderBy()))
@@ -94,7 +96,7 @@ func (g *Generator) Delete() (string, []interface{}) {
 
 	where, params := g.opts.genWhere()
 	sql := bytes.NewBufferString("DELETE")
-	fmt.Fprintf(sql, " FROM %s", g.table)
+	fmt.Fprintf(sql, " FROM %s", internal.SafeName(g.table))
 	sql.WriteString(sqlOrEmpty(where))
 	sql.WriteString(sqlOrEmpty(g.opts.genOrderBy()))
 	sql.WriteString(sqlOrEmpty(g.opts.genLimit()))
@@ -123,8 +125,8 @@ func (g *Generator) insertNormal(columns []string, records ...[]interface{}) (st
 	}
 
 	onDuplicateKeyUpdate, updateParams := g.opts.genOnDuplicateKeyUpdate()
-	sql := bytes.NewBufferString(fmt.Sprintf("INSERT INTO %s", g.table))
-	fmt.Fprintf(sql, " (%s)", strings.Join(columns, ", "))
+	sql := bytes.NewBufferString(fmt.Sprintf("INSERT INTO %s", internal.SafeName(g.table)))
+	fmt.Fprintf(sql, " (%s)", strings.Join(internal.SafeNames(columns), ", "))
 	fmt.Fprintf(sql, " VALUES (%s)", strings.Repeat(",?", len(records[0]))[1:])
 	for i := 1; i < len(records); i++ {
 		fmt.Fprintf(sql, ", (%s)", strings.Repeat(",?", len(records[i]))[1:])
@@ -146,8 +148,8 @@ func (g *Generator) insertWithWhereCond(columns []string, record []interface{}) 
 	}
 
 	where, whereParams := g.opts.genWhere()
-	sql := bytes.NewBufferString(fmt.Sprintf("INSERT INTO %s", g.table))
-	fmt.Fprintf(sql, " (%s)", strings.Join(columns, ", "))
+	sql := bytes.NewBufferString(fmt.Sprintf("INSERT INTO %s", internal.SafeName(g.table)))
+	fmt.Fprintf(sql, " (%s)", strings.Join(internal.SafeNames(columns), ", "))
 	fmt.Fprintf(sql, " SELECT %s FROM dual", strings.Repeat(",?", len(record))[1:])
 	sql.WriteString(sqlOrEmpty(where))
 
@@ -170,12 +172,17 @@ func getColumns(target interface{}) ([]string, error) {
 
 	var columns []string
 	for i := 0; i < targetType.NumField(); i++ {
-		tag := targetType.Field(i).Tag.Get("sqlg")
-		if tag == "" || tag == "-" {
+		column := targetType.Field(i).Tag.Get("db")
+		if column == "" || column == "-" {
 			continue
 		}
+		column = internal.SafeName(column)
 
-		columns = append(columns, tag)
+		if expr := targetType.Field(i).Tag.Get("expr"); expr != "" {
+			column = expr
+		}
+
+		columns = append(columns, column)
 	}
 
 	return columns, nil

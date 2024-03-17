@@ -44,7 +44,7 @@ func (o *Options) genForceIndex() string {
 		return ""
 	}
 
-	return fmt.Sprintf("FORCE INDEX (%s)", o.forceIndex)
+	return fmt.Sprintf("FORCE INDEX (%s)", internal.SafeName(o.forceIndex))
 }
 
 func (o *Options) genWhere() (string, []interface{}) {
@@ -61,7 +61,7 @@ func (o *Options) genGroupBy() string {
 		return ""
 	}
 
-	return fmt.Sprintf("GROUP BY %s", strings.Join(o.groupBy, ", "))
+	return fmt.Sprintf("GROUP BY %s", strings.Join(internal.SafeNames(o.groupBy), ", "))
 }
 
 func (o *Options) genOrderBy() string {
@@ -96,7 +96,7 @@ func (o *Options) genSet(assExpr *AssExpr) (string, []interface{}) {
 	params := make([]interface{}, 0, assExpr.size())
 	buffer := bytes.NewBuffer(nil)
 	assExpr.each(func(column string, value interface{}) {
-		fmt.Fprintf(buffer, ", %s=?", column)
+		fmt.Fprintf(buffer, ", %s=?", internal.SafeName(column))
 		params = append(params, value)
 	})
 
@@ -112,7 +112,7 @@ func (o *Options) genOnDuplicateKeyUpdate() (string, []interface{}) {
 	params := make([]interface{}, 0, o.onDuplicateKeyUpdate.size())
 	buffer := bytes.NewBuffer(nil)
 	o.onDuplicateKeyUpdate.each(func(column string, value interface{}) {
-		fmt.Fprintf(buffer, ", %s=?", column)
+		fmt.Fprintf(buffer, ", %s=?", internal.SafeName(column))
 		params = append(params, value)
 	})
 

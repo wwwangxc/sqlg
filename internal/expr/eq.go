@@ -30,5 +30,5 @@ func (e *EQ) ToSQL() (string, []interface{}) {
 		return "", nil
 	}
 
-	return fmt.Sprintf("%s %s=?", e.op, e.column), []interface{}{e.value}
+	return fmt.Sprintf("%s %s=?", e.op, internal.SafeName(e.column)), []interface{}{e.value}
 }

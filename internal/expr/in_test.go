@@ -28,7 +28,7 @@ func TestIn_ToSQL(t *testing.T) {
 				values: []interface{}{"val1", "val2", "val3"},
 				isNot:  false,
 			},
-			want:  "AND col IN (?,?,?)",
+			want:  "AND `col` IN (?,?,?)",
 			want1: []interface{}{"val1", "val2", "val3"},
 		},
 		{
@@ -39,7 +39,7 @@ func TestIn_ToSQL(t *testing.T) {
 				values: []interface{}{"val1", "val2", "val3"},
 				isNot:  false,
 			},
-			want:  "OR col IN (?,?,?)",
+			want:  "OR `col` IN (?,?,?)",
 			want1: []interface{}{"val1", "val2", "val3"},
 		},
 		{
@@ -50,7 +50,7 @@ func TestIn_ToSQL(t *testing.T) {
 				values: []interface{}{"val1", "val2", "val3"},
 				isNot:  true,
 			},
-			want:  "AND col NOT IN (?,?,?)",
+			want:  "AND `col` NOT IN (?,?,?)",
 			want1: []interface{}{"val1", "val2", "val3"},
 		},
 		{
@@ -61,7 +61,7 @@ func TestIn_ToSQL(t *testing.T) {
 				values: []interface{}{"val1", "val2", "val3"},
 				isNot:  true,
 			},
-			want:  "OR col NOT IN (?,?,?)",
+			want:  "OR `col` NOT IN (?,?,?)",
 			want1: []interface{}{"val1", "val2", "val3"},
 		},
 	}

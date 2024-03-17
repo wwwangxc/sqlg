@@ -13,7 +13,8 @@ type Option func(*Options)
 // WithAnd append AND expression into the condition
 //
 // EXP:
-//   AND ${expr}
+//
+//	AND ${expr}
 func WithAnd(column string, expr Expr) Option {
 	return func(o *Options) {
 		o.where.Append(expr(internal.OperatorAnd, column))
@@ -23,7 +24,8 @@ func WithAnd(column string, expr Expr) Option {
 // WithOr append OR expression into the condition
 //
 // EXP:
-//   OR ${expr}
+//
+//	OR ${expr}
 func WithOr(column string, expr Expr) Option {
 	return func(o *Options) {
 		o.where.Append(expr(internal.OperatorOr, column))
@@ -33,7 +35,8 @@ func WithOr(column string, expr Expr) Option {
 // WithAndExprs append compound expression
 //
 // EXP:
-//   AND (${expr1} OR ${expr2})
+//
+//	AND (${expr1} OR ${expr2})
 func WithAndExprs(m *CompExpr) Option {
 	return func(o *Options) {
 		if m == nil || m.empty() {
@@ -52,7 +55,8 @@ func WithAndExprs(m *CompExpr) Option {
 // WithOrExprs append compound expression
 //
 // EXP:
-//   OR (${expr1} AND ${expr2})
+//
+//	OR (${expr1} AND ${expr2})
 func WithOrExprs(m *CompExpr) Option {
 	return func(o *Options) {
 		if m == nil || m.empty() {
@@ -71,7 +75,8 @@ func WithOrExprs(m *CompExpr) Option {
 // WithExists append exists expression
 //
 // EXP:
-//   AND EXISTS (SELECT * FROM ${table} WHERE %{expr1} AND ${expr2})
+//
+//	AND EXISTS (SELECT * FROM ${table} WHERE %{expr1} AND ${expr2})
 func WithExists(table string, m *CompExpr) Option {
 	return func(o *Options) {
 		if m == nil || table == "" || m.empty() {
@@ -90,7 +95,8 @@ func WithExists(table string, m *CompExpr) Option {
 // WithNExists append not exists expression
 //
 // EXP:
-//   AND NOT EXISTS (SELECT * FROM ${table} WHERE %{expr1} AND ${expr2})
+//
+//	AND NOT EXISTS (SELECT * FROM ${table} WHERE %{expr1} AND ${expr2})
 func WithNExists(table string, m *CompExpr) Option {
 	return func(o *Options) {
 		if m == nil || table == "" || m.empty() {
@@ -109,7 +115,8 @@ func WithNExists(table string, m *CompExpr) Option {
 // WithNExists append not exists expression
 //
 // EXP:
-//   OR EXISTS (SELECT * FROM ${table} WHERE %{expr1} AND ${expr2})
+//
+//	OR EXISTS (SELECT * FROM ${table} WHERE %{expr1} AND ${expr2})
 func WithOrExists(table string, m *CompExpr) Option {
 	return func(o *Options) {
 		if m == nil || table == "" || m.empty() {
@@ -128,7 +135,8 @@ func WithOrExists(table string, m *CompExpr) Option {
 // WithOrNExists append not exists expression
 //
 // EXP:
-//   OR NOT EXISTS (SELECT * FROM ${table} WHERE %{expr1} AND ${expr2})
+//
+//	OR NOT EXISTS (SELECT * FROM ${table} WHERE %{expr1} AND ${expr2})
 func WithOrNExists(table string, m *CompExpr) Option {
 	return func(o *Options) {
 		if m == nil || table == "" || m.empty() {
@@ -147,7 +155,8 @@ func WithOrNExists(table string, m *CompExpr) Option {
 // WithGroupBy append group by condition
 //
 // EXP:
-//   GROUP BY ${column1}, ${column2}
+//
+//	GROUP BY ${column1}, ${column2}
 func WithGroupBy(columns ...string) Option {
 	return func(o *Options) {
 		o.groupBy = append(o.groupBy, columns...)
@@ -157,27 +166,30 @@ func WithGroupBy(columns ...string) Option {
 // WithOrderBy append order by condition
 //
 // EXP:
-//   ORDER BY ${column} ASC
+//
+//	ORDER BY ${column} ASC
 func WithOrderBy(column string) Option {
 	return func(o *Options) {
-		o.orderBy = append(o.orderBy, fmt.Sprintf("%s ASC", column))
+		o.orderBy = append(o.orderBy, fmt.Sprintf("%s ASC", internal.SafeName(column)))
 	}
 }
 
 // WithOrderByDESC append order by condition
 //
 // EXP:
-//   ORDER BY ${column} DESC
+//
+//	ORDER BY ${column} DESC
 func WithOrderByDESC(column string) Option {
 	return func(o *Options) {
-		o.orderBy = append(o.orderBy, fmt.Sprintf("%s DESC", column))
+		o.orderBy = append(o.orderBy, fmt.Sprintf("%s DESC", internal.SafeName(column)))
 	}
 }
 
 // WithLimit set limit
 //
 // EXP:
-//   LIMIT ${limit}
+//
+//	LIMIT ${limit}
 func WithLimit(limit uint32) Option {
 	return func(o *Options) {
 		o.limit = limit
@@ -187,7 +199,8 @@ func WithLimit(limit uint32) Option {
 // WithOffset set offset
 //
 // EXP:
-//   OFFSET ${offset}
+//
+//	OFFSET ${offset}
 func WithOffset(offset uint32) Option {
 	return func(o *Options) {
 		o.offset = offset
@@ -197,7 +210,8 @@ func WithOffset(offset uint32) Option {
 // ForceIndex set force index
 //
 // EXP:
-//   FORCE INDEX(${index})
+//
+//	FORCE INDEX(${index})
 func ForceIndex(index string) Option {
 	return func(o *Options) {
 		o.forceIndex = index
@@ -207,7 +221,8 @@ func ForceIndex(index string) Option {
 // OnDuplicateKeyUpdate for generate insert statment
 //
 // EXP:
-//   ON DUPLICATE KEY UPDATE ${column}=${value}, ${column}=${value}
+//
+//	ON DUPLICATE KEY UPDATE ${column}=${value}, ${column}=${value}
 func OnDuplicateKeyUpdate(assExpr *AssExpr) Option {
 	return func(o *Options) {
 		o.onDuplicateKeyUpdate = assExpr
@@ -217,7 +232,8 @@ func OnDuplicateKeyUpdate(assExpr *AssExpr) Option {
 // ForUpdate set for update symbol
 //
 // EXP:
-//   FOR UPDATE
+//
+//	FOR UPDATE
 func ForUpdate() Option {
 	return func(o *Options) {
 		o.forUpdate = true

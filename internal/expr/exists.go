@@ -50,5 +50,5 @@ func (e *Exists) ToSQL() (string, []interface{}) {
 
 	cond, params := e.compExpr.ToSQL()
 	cond = strings.TrimRight(strings.TrimLeft(removeFirstOp(cond), "("), ")")
-	return fmt.Sprintf("%s %sEXISTS (SELECT * FROM %s WHERE %s)", e.op, symbol, e.table, cond), params
+	return fmt.Sprintf("%s %sEXISTS (SELECT * FROM %s WHERE %s)", e.op, symbol, internal.SafeName(e.table), cond), params
 }

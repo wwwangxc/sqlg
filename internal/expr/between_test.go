@@ -30,7 +30,7 @@ func TestBetween_ToSQL(t *testing.T) {
 				value2: 200,
 				isNot:  false,
 			},
-			want:  "AND col BETWEEN ? AND ?",
+			want:  "AND `col` BETWEEN ? AND ?",
 			want1: []interface{}{100, 200},
 		},
 		{
@@ -42,7 +42,7 @@ func TestBetween_ToSQL(t *testing.T) {
 				value2: 200,
 				isNot:  false,
 			},
-			want:  "OR col BETWEEN ? AND ?",
+			want:  "OR `col` BETWEEN ? AND ?",
 			want1: []interface{}{100, 200},
 		},
 		{
@@ -54,7 +54,7 @@ func TestBetween_ToSQL(t *testing.T) {
 				value2: 200,
 				isNot:  true,
 			},
-			want:  "AND col NOT BETWEEN ? AND ?",
+			want:  "AND `col` NOT BETWEEN ? AND ?",
 			want1: []interface{}{100, 200},
 		},
 		{
@@ -66,7 +66,7 @@ func TestBetween_ToSQL(t *testing.T) {
 				value2: 200,
 				isNot:  true,
 			},
-			want:  "OR col NOT BETWEEN ? AND ?",
+			want:  "OR `col` NOT BETWEEN ? AND ?",
 			want1: []interface{}{100, 200},
 		},
 	}

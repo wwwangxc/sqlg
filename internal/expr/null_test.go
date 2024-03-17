@@ -26,7 +26,7 @@ func TestNull_ToSQL(t *testing.T) {
 				column: "col",
 				isNot:  false,
 			},
-			want:  "AND col IS NULL",
+			want:  "AND `col` IS NULL",
 			want1: nil,
 		},
 		{
@@ -36,7 +36,7 @@ func TestNull_ToSQL(t *testing.T) {
 				column: "col",
 				isNot:  false,
 			},
-			want:  "OR col IS NULL",
+			want:  "OR `col` IS NULL",
 			want1: nil,
 		},
 		{
@@ -46,7 +46,7 @@ func TestNull_ToSQL(t *testing.T) {
 				column: "col",
 				isNot:  true,
 			},
-			want:  "AND col IS NOT NULL",
+			want:  "AND `col` IS NOT NULL",
 			want1: nil,
 		},
 		{
@@ -56,7 +56,7 @@ func TestNull_ToSQL(t *testing.T) {
 				column: "col",
 				isNot:  true,
 			},
-			want:  "OR col IS NOT NULL",
+			want:  "OR `col` IS NOT NULL",
 			want1: nil,
 		},
 	}

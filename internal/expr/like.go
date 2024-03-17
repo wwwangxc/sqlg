@@ -50,5 +50,6 @@ func (l *Like) ToSQL() (string, []interface{}) {
 		symbol = "NOT "
 	}
 
-	return fmt.Sprintf("%s %s %sLIKE ?", l.op, l.column, symbol), []interface{}{fmt.Sprintf(l.format, l.value)}
+	return fmt.Sprintf("%s %s %sLIKE ?", l.op, internal.SafeName(l.column), symbol),
+		[]interface{}{fmt.Sprintf(l.format, l.value)}
 }
